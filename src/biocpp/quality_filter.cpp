@@ -1,3 +1,5 @@
+// LOOK INTO /test/snippet/documentation (UPDATED IN THE UPSTREAM MASTER!) FOR COMMENTED LIVE CODE-ALONG EXERCISES!!!
+
 #include <stdexcept>    // Hmm, was added automatically?
 
 #include <string_view>
@@ -24,6 +26,17 @@ seqan3::phred42 read_in_quality()
 
     return seqan3::phred42{}.assign_rank(user_quality);
 }
+
+
+// Now define our own Concept
+template <typename t>
+concept semi_integral = requires (int32_t left_hand_side, t right_hand_side)
+{
+    { left_hand_side += right_hand_side };  // Require that += expression/assignment is valid.
+    requires std::integral<decltype(left_hand_side += right_hand_side)>; // Require that the type returned (decltype) by += is integral.
+
+    // Plus, remove_reference_t function on types. For me it, however, compiled also without it :/
+};
 
 
 template <std::ranges::input_range range_t> // Added Concept input_range for more safety (like a Java Interface, ++), with a lot of cool semantic features.

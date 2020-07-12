@@ -1,6 +1,10 @@
-#include <stdexcept>
+#include <stdexcept>    // Hmm, was added automatically?
+
 #include <string_view>
+#include <seqan3/std/ranges>    // To make it safe with ranges (C++20)
+
 #include <seqan3/io/sequence_file/all.hpp>
+#include <seqan3/alphabet/quality/all.hpp>  // Alphabet
 
 // Alias for a C-style string.
 using character_string = char const *;

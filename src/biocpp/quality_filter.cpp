@@ -5,9 +5,12 @@
 
 #include <seqan3/io/sequence_file/all.hpp>
 #include <seqan3/alphabet/quality/all.hpp>  // Alphabet
+#include <seqan3/range/views/to_rank.hpp>   // View that converts alphabet to rank
+
 
 // Alias for a C-style string.
 using character_string = char const *;
+
 
 seqan3::phred42 read_in_quality()
 {
@@ -21,6 +24,18 @@ seqan3::phred42 read_in_quality()
     return seqan3::phred42{}.assign_rank(user_quality);
 }
 
+
+template <typename range_t>
+int32_t sum(range_t && range)
+{
+    int32_t intermediate_sum{};
+    for (auto && value : range)
+        intermediate_sum += value;
+
+    return intermediate_sum;
+}
+
+
 // argc: number of arguments. argv[]: list of arguments. N.B. The 1st argument is the name of the program/executable.
 int main(int argc, character_string argv[])
 {
@@ -32,9 +47,20 @@ int main(int argc, character_string argv[])
 
     seqan3::phred42 minimal_quality = read_in_quality();    // phred42 score range 0..41
 
-    for (auto && [seq, id, qual] : fastq_in)    // Cool modern C++: auto is type detection; && is refref to modifiable memory (just use "auto &&" & you're safe ;D); [,,] is a 3-tuple; fastq_in consists of 3-tuples.
+    // Second version with averaging quality scores and then filtering
+    fasta_out = fastq_in | std::views::filter([&] (auto && fastq_record)     // Fancy C++20 Views. Plus [] () {} lambdex -- fails here with [] while knowing that we probably wanted to capture minimal_quality -- use [&] to capture it.
     {
-        if (std::ranges::all_of(qual, [&] (auto && quality) { return quality >= minimal_quality; }))   // Cool modern C++: Range-based algorithms (std::ranges::all_of() like in maths ALL OF). And lambda [&] () {} expression!
-            fasta_out.emplace_back(seq, id);
-    }
+        auto rank_quality_view = seqan3::get<seqan3::field::qual>(fastq_record)
+                               | seqan3::views::to_rank;    // Piping it further. The disputable indent used so by the presenter (René Rahn)
+        seqan3::phred42 average_quality = sum(rank_quality_view) /
+                                          std::ranges::distance(rank_quality_view);
+        return average_quality >= minimal_quality;
+    });
+
+    // First version was conservative, with all quality scores of a sequence above the threshold.
+    // for (auto && [seq, id, qual] : fastq_in)    // Cool modern C++: auto is type detection; && is refref to modifiable memory (just use "auto &&" & you're safe ;D); [,,] is a 3-tuple; fastq_in consists of 3-tuples.
+    // {
+    //     if (std::ranges::all_of(qual, [&] (auto && quality) { return quality >= minimal_quality; }))   // Cool modern C++: Range-based algorithms (std::ranges::all_of() like in maths ALL OF). And lambda [&] () {} expression!
+    //         fasta_out.emplace_back(seq, id);
+    // }
 }

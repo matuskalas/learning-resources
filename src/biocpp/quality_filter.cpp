@@ -27,4 +27,10 @@ int main(int argc, character_string argv[])
     seqan3::sequence_file_input fastq_in{fastq_file_path};
 
     seqan3::phred42 minimal_quality = read_in_quality();    // phred42 score range 0..41
+
+    for (auto && [seq, id, qual] : fastq_in)    // Cool modern C++: auto is type detection; && is refref to modifiable memory (just use "auto &&" & you're safe ;D); [,,] is a 3-tuple; fastq_in consists of 3-tuples.
+    {
+        if (std::ranges::all_of(qual, [&] (auto && quality) { return quality >= minimal_quality; }))   // Cool modern C++: Range-based algorithms (std::ranges::all_of() like in maths ALL OF). And lambda [&] () {} expression!
+            fasta_out.emplace_back(seq, id);
+    }
 }

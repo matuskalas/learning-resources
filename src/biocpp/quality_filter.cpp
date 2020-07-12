@@ -25,7 +25,8 @@ seqan3::phred42 read_in_quality()
 }
 
 
-template <typename range_t>
+template <std::ranges::input_range range_t> // Added Concept input_range for more safety (like a Java Interface, ++), with a lot of cool semantic features.
+    requires std::integral<std::ranges::range_reference_t<range_t>> // Added Concept requirement that it's an integral type to allow +=. range_reference_t is a function working on types! :O
 int32_t sum(range_t && range)
 {
     int32_t intermediate_sum{};

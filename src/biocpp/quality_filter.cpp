@@ -11,7 +11,7 @@ seqan3::phred42 read_in_quality()
     int32_t user_quality{}; // {} 0-iniitalises the variable. We don't want uninitialised vars. Good to use int32_t here.
     std::cin >> user_quality;
 
-    if (0 < user_quality || user_quality > 41)
+    if (user_quality < 0 || user_quality > 41)
         throw std::invalid_argument{"Expected value between 0 and 41."};
 
     return seqan3::phred42{}.assign_rank(user_quality);

@@ -1,5 +1,8 @@
 // LOOK INTO /test/snippet/documentation (UPDATED IN THE UPSTREAM MASTER!) FOR COMMENTED LIVE CODE-ALONG EXERCISES!!!
 
+// Count filtered sequences with e.g. grep '> SRR' SRR1770413_1_40k_filtered35avg.fasta | wc -l
+// and original with e.g. grep '@SRR' SRR1770413_1_40k.fastq | wc -l
+
 #include <stdexcept>    // Hmm, was added automatically?
 
 #include <string_view>
